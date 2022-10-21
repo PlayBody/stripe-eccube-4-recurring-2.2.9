@@ -1,0 +1,52 @@
+{% if Order.Payment.getMethodClass == 'Plugin\\StripeRec\\Service\\Method\\StripeRecurringNagMethod' %}
+    <script>
+        $(function () {
+            $('.ec-orderPayment').first().after($('#StripePaymentContainer'));
+            {% if stripeErrorMessage is not null %}
+            $(document).ready(function () {
+                $("html, body").animate({
+                    scrollTop: $("#stripeCardHeading").offset().top
+                }, 2000);
+                setTimeout(function () {
+                    $("#card-element").addClass("StripeElement--invalid");
+                }, 2000);
+            });
+            {% endif %}
+        });
+    </script>
+    <div style="display: none;">
+        <div id="StripePaymentContainer" class="ec-orderPayment">
+            <div id="stripeCardHeading" class="ec-rectHeading">
+                <h2>{{ 'stripe_payment_gateway.front.card_info'|trans }}</h2>
+            </div>
+            <div class="stripe-input">
+                <div id="card-element" {% if stripePaymentMethodObj and stripeIsSaveCardOn %}style="display:none;"{% endif %}>
+                    <!-- A Stripe Element will be inserted here. -->
+                </div>
+                <div class="stripe-card-notes" {% if stripePaymentMethodObj and stripeIsSaveCardOn %}style="display:none;"{% endif %}>※MM/YYは有効期限を、CVCは裏面の3桁のセキュリティコードをご入力ください。
+                    {# {% if customerObj %}
+                        <div class="stripe-save-card-checkbox">
+                            {{ form_widget(form.is_save_card_on) }} {{ 'stripe_payment_gateway.front.save_card'|trans }}
+                        </div>
+                    {% endif %} #}
+                    {% if stripePaymentMethodObj and stripeIsSaveCardOn %}
+                        <br/>
+                        <a href="javascript:void(0)" id="default-stripe-card">{{ 'stripe_payment_gateway.front.use_card'|trans({'%brand%':stripePaymentMethodObj.card.brand,'%last4%':stripePaymentMethodObj.card.last4}) }}</a>
+                    {% endif %}
+                </div>
+                <input type="hidden" id="stripe_customer" name="stripe_customer" value="{% if stripePaymentMethodObj %}1{% else %}0{% endif %}" />
+                {% if stripePaymentMethodObj and stripeIsSaveCardOn %}
+                    <div class="available-card">
+                        <p>{{ 'stripe_payment_gateway.front.card_details'|trans({'%brand%':stripePaymentMethodObj.card.brand,'%last4%':stripePaymentMethodObj.card.last4}) }}</p>
+                        <a href="javascript:void(0)" id="change-stripe-card">{{ 'stripe_payment_gateway.front.use_another_card'|trans }}</a>
+                    </div>
+                    <input type="hidden" id="stripe_last_payment_method_id" name="stripe_last_payment_method_id" value="{{ stripePaymentMethodObj.id }}" />
+                {% endif %}
+                <!-- Used to display form errors. -->
+                <div id="card-errors" role="alert">
+                    {{ stripeErrorMessage }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

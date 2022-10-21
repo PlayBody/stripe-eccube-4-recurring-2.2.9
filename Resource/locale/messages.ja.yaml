@@ -1,0 +1,165 @@
+stripe_recurring.admin.product.edit.label: プランID
+stripe_recurring.admin.product.class_reg_btn: 継続課金設定
+stripe_recurring.admin.config.webhook_signature.label: Webhook署名シークレット
+stripe_recurring.admin.config.header: クレジットカード定期購入設定
+stripe_recurring.admin.nav.rec_order: 定期コース
+stripe_recurring.admin.rec_order_subtitle: クレジットカード定期購入
+stripe_recurring.admin.rec_order.table.order_id: 注文ID
+stripe_recurring.admin.rec_order.table.subscription_id: 定期支払い ID
+stripe_recurring.admin.rec_order.table.amount: 金額
+stripe_recurring.admin.rec_order.table.orderer: 注文者
+stripe_recurring.admin.rec_order.table.paid_status: 最終決済状態
+stripe_recurring.admin.rec_order.table.paid_status.desc: 決済状態
+stripe_recurring.admin.rec_order.table.current_period_end: 当期末
+stripe_recurring.admin.rec_order.table.last_payment_date: 最終決済日
+stripe_recurring.admin.rec_order.table.rec_status: 定期購入状態
+stripe_recurring.admin.rec_order.table.rec_status.desc: 定期購入状態
+stripe_recurring.admin.rec_order.table.rec_cancel: キャンセル
+stripe_recurring.admin.rec_order.table.action: アクション
+stripe_recurring.admin.rec_order.delete_confirm: 確認
+stripe_recurring.admin.rec_order.delete_cancel: キャンセル
+stripe_recurring.admin.rec_order.delete_confirm_msg: サブスクリプションの支払いを本当にキャンセルしますか？
+stripe_recurring.admin.rec_order.error.empty_bundle_product: オプション商品コードを入力してください
+stripe_recurring.admin.rec_order.error.invalid_bundle_product: 無効なオプション商品コードです
+stripe_recurring.admin.rec_order.initial_order_date: 注文日
+stripe_recurring.admin.rec_order.payment_count: 決済回数
+stripe_recurring.admin.rec_order.history: 定期購入履歴
+stripe_recurring.admin.rec_order.cancel_reason: キャンセル理由
+stripe_recurring.admin.product.register: 商品登録
+stripe_recurring.admin.product_class.register_flg: 登録
+stripe_recurring.admin.product_class.stripe_id_label: 継続課金設定
+stripe_recurring.admin.nav.rec_config: 定期支払い設定
+stripe_rec.admin.save.success: 設定を保存しました。
+stripe_rec.admin.nav.name: Stripe 管理
+stripe_rec.admin.stripe_price.register_err: Stripeプランを登録できません。
+stripe_rec.admin.stripe_price.update_err: Stripeプランを変更できません。
+stripe_rec.admin.stripe_product.register_err: Stripe登録失敗
+stripe_rec.admin.stripe_product.update_err: Stripeプランを変更できません。
+
+stripe_rec.admin.product_class.cancel_failed:  定期購入の取り消しが失敗しました。
+stripe_rec.admin.product_class.cancel_success: 定期購入の取り消しが成功しました。
+stripe_rec.admin.product_class.unregister_success: 価格IDの登録解除に成功しました。
+stripe_recurring.admin.product.unregister: 商品登録解除
+stripe_recurring.admin.product_class.unregister: 規格登録解除
+stripe_recurring.admin.product.modal_body.unregister: 商品の登録を本当に解除しますか
+stripe_recurring.admin.product.modal_body.confirm: 確認
+stripe_recurring.admin.product.modal_body.cancel: キャンセル
+stripe_recurring.admin.product.first_cycle_free: 最初のサイクルは無料
+
+stripe_recurring.payment_method.name: クレジットカード定期購入
+stripe_recurring.subscribe.failed: 定期支払い失敗
+stripe_recurring.confirm.card_verify_error: カード検証エラー
+stripe_recurring.checkout.payment_method.retrieve_error: 支払い取得エラー
+stripe_recurring.cart.quant_limit_error: この商品は1つしかカートに入れることができません。
+stripe_recurring.label.paid_status.paid: 支払い済み
+stripe_recurring.label.paid_status.upcoming: 待機
+stripe_recurring.label.paid_status.failed: 失敗
+stripe_recurring.label.paid_status.undefined: 未定
+stripe_recurring.label.rec_status.active: アクティブ
+stripe_recurring.label.rec_status.canceled: キャンセル済み
+
+stripe_recurring.mypage.recurring.breadcrump: 定期注文
+stripe_recurring.mypage.recurring.tab_label: 定期注文
+stripe_recurring.mypage.recurring.cancel: キャンセル
+stripe_recurring.mypage.recurring.current_period: 当期
+stripe_recurring.mypage.recurring.last_payment_date: 最終決済日
+stripe_recurring.mypage.recurring.regular_payment_amount: 定期決済金額
+stripe_recurring.mypage.recurring.update_method: カード変更
+stripe_recurring.mypage.recurring.update_method_success: カード変更成功
+
+stripe_recurring.cart.add_item.rec_unregistered_item: この商品は定期購入できません。
+stripe_recurring.cart.add_item.rec_interval_unmatched: 異なる周期の定期商品は同時に購入できません。
+stripe_recurring.cart.add_item.item_already: この商品はすでにカートに追加されています。
+stripe_recurring.mypage.recurring_cancel_confirm: 定期購入を停止してもよろしいでしょうか？
+stripe_recurring.mypage.recurring.cancel_confirm.btn_confirm: 停止する
+stripe_recurring.mypage.recurring.cancel_confirm.btn_cancel: キャンセル
+stripe_recurring.mypage.recurring_cancel_confirm.reason: 理由を教えていただけますか。
+
+stripe_rec.shopping.error.not_recurring_order: この注文は定期支払い方法では利用できません。
+stripe_rec.shopping.error.invalid_access: 無効なアクセスです。
+stripe_rec.shopping.error.already_recurring: この注文は既に定期購入中です。 カートを空にしてください。
+
+# bundling and purchase point
+stripe_rec.shopping.error.after_days.empty_error: 日数を入力してください
+
+# License
+stripe_recurring.admin.license.license_key: ライセンスキー
+stripe_recurring.admin.license.license_key.error.blank: ライセンスキーが入力されていません。
+stripe_recurring.admin.license.license_key.error.regex: 有効なライセンスキーを入力してください。
+
+stripe_recurring.admin.license.email: メールアドレス
+stripe_recurring.admin.license.email.error.blank: メールアドレスが入力されていません。 
+stripe_recurring.admin.license.email.error.regex: 有効なメールアドレスを入力してください。
+
+stripe_recurring.admin.license.stripe.testkey: テストStripeキーを入力してください。
+stripe_recurring.admin.license.failed : ライセンス認証が失敗しました。
+stripe_recurring.admin.license.success: ライセンス認証が成功しました。
+stripe_recurring.admin.license.wrong_key : ライセンスキーが正しくありません。
+stripe_recurring.admin.license.notyet : ライセンスはまだ認定されていません。
+
+stripe_recurring.admin.license.title: ライセンス認証
+stripe_recurring.admin.license.header: ライセンス認証
+stripe_recurring.admin.license.confirm: 確認
+stripe_recurring.admin.license.cancel: キャンセル
+stripe_recurring.admin.license.required: 必須
+
+stripe_recurring.admin.license.error.product-key-require: 製品ライセンスキーが必要です。
+stripe_recurring.admin.license.warning.product-key: Stripeキーはライセンス認証後ご入力いただけます。
+
+stripe_recurring.admin.license.test_setting: テスト環境
+stripe_recurring.admin.license.test_setting_notice: 右ボタンを押してください。
+stripe_recurring.admin.license.test_env: テスト環境
+stripe_recurring.admin.license.test_key_elim: テストキーを削除するには、プラグインを再インストールしてください。
+stripe_recurring.admin.license.notice.header: 通報
+
+stripe_recurring.admin.product_def_pc.modal_body.unregister: 規格の登録を本当に解除しますか
+stripe_recurring.admin.purchase_point_label: 初期購入の日付
+stripe_recurring.admin.purchase_point_on_date_label: 即時
+stripe_recurring.admin.purchase_point_next_week_label: 翌週から
+stripe_recurring.admin.purchase_point_next_month_label: 翌月から
+stripe_recurring.admin.purchase_point_next_years_label: 翌年から
+stripe_recurring.admin.purchase_point_after_days_label: 日数入力
+stripe_recurring.admin.purchase_point_after_days.input_label: 日付選択
+stripe_recurring.admin.schedule.status: 定期決済予定の状態
+stripe_recurring.admin.recurring_amount: 定期決済金額
+stripe_recurring.admin.initial_amount: 初期決済金額
+stripe_recurring.admin.product_class.bundle_product.no_product_code: 無効な商品コードです。
+stripe_recurring.admin.product_class.bundle_product.label: オプション商品コード
+stripe_recurring.admin.product_class.initial_price: 初期価格
+stripe_recurring.admin.schedule.table.schedule_id: 定期決済予定ID
+stripe_recurring.admin.schedule.table.status: 定期決済予定の状態
+stripe_recurring.admin.schedule.table.start_date: 今期の開始日
+stripe_recurring.admin.rec_order.table.initial_amount: 初期価格
+stripe_recurring.admin.nav.schedule: 定期決済予定
+stripe_recurring.admin.coupon_enable.label: クーポン
+stripe_recurring.admin.coupon.label: クーポン
+stripe_recurring.admin.rec_order.create_link: 決済リンクを作る
+stripe_recurring.label.rec_status.not_started: 決済待機中
+stripe_recurring.mypage.schedule.tab_label: 定期決済予定
+stripe_recurring.mypage.schedule.bundle_product: オプション商品
+stripe_recurring.mypage.schedule.bundle_required: オプション商品必須
+stripe_recurring.mypage.schedule.bundle_product_setting: オプション商品設定
+stripe_recurring.mypage.schedule.status: 定期決済予定の状態
+stripe_recurring.mypage.schedule.label_id: 定期決済予定ID
+stripe_recurring.mypage.schedule.breadcrump: 定期決済予定
+stripe_recurring.label.rec_status.started: 決済中
+stripe_recurring.schedule.start_date: 今期の開始日
+stripe_recurring.schedule.error.alreasy_started: 定期決済はすでに開始されています。サブスクリプションページで定期決済を停止できます。
+stripe_recurring.schedule.error.purchase_point_not_provided: 初期購入の日付を選択してください。
+stripe_recurring.schedule.error.select_past_date: 今日以後の日付を入力してください
+stripe_recurring.config.label.payment_date_option: 初期請求
+stripe_recurring.config.label.payment_date: 2回以降請求日
+stripe_recurring.config.label.payday_option: 初期請求
+stripe_recurring.config.label.initial_payment_calc: 初期請求額計算
+stripe_recurring.coupon.no_such_coupon: 指摘したクーポンは存在しません
+stripe_recurring.coupon.discount_bigger: クーポン割引額が価格より高いです。
+stripe_recurring.coupon.invalid_coupon: 無効なクーポンです
+stripe_recurring.coupon.coupon_discount: クーポン割引額
+stripe_recurring.coupon.btn_check_label: 割引を確認
+stripe_recurring.coupon.error.empty_coupon: クーポンを入力してください。
+stripe_recurring.coupon.error.expired_or_invalid: クーポンが有効期間切れまたは無効になりました。
+stripe_recurring.coupon.coupon_name_label: クーポン名
+stripe_recurring.coupon.coupon_code_label: クーポンコード
+stripe_recurring.admin.multi_product.label: 在庫制限
+stripe_recurring.admin.multi_product.tooltip: こちらを有効にしますと商品ごとに１個のみカートに追加できるようになります。
+stripe_recurring.label.rec_status.scheduled: 定期決済予定

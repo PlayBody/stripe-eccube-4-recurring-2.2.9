@@ -1,0 +1,225 @@
+<script>
+   (function($) {
+        let $navi_add = $(`
+            <div class="row">
+                <div class="col-3">
+                    <div class="d-inline-block">
+                        <span>{{ 'stripe_recurring.admin.product.edit.label'|trans }}</span>                        
+                    </div>
+                </div>               
+                {% if Product.StripeProdId %}
+                    <div class="col-3 mb-2">
+                        <div class="d-block text-left">
+                            {{ Product.StripeProdId }}                            
+                        </div>
+                    </div>
+                    <div class="col-2 mb-2">
+                        <a class="btn btn-ec-regular ml-3" data-action="stripe-unregister" data-url="{{ path('stripe_rec_prod_unregister', { 'id' : id }) }}">
+                            {{ 'stripe_recurring.admin.product.unregister'|trans }}
+                            </a>
+                    </div>
+                {% elseif id %}
+                    <div class="col-2 mb-2">
+                        <div class="d-block text-left">
+                            <a class="btn btn-ec-regular" data-action="stripe-register" data-url="{{ path('stripe_rec_product_stripe_register', { 'id' : id }) }}">
+                                {{ 'stripe_recurring.admin.product.register'|trans }}                            
+                                </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            {% if Product.DefaultClass and Product.isStripeProduct %}
+                <div class="row">
+                    <div class="col-3">
+                        <div class="d-inline-block">
+                            <span>{{ 'stripe_recurring.admin.product.class_reg_btn'|trans }}</span>                        
+                        </div>
+                    </div>
+                    
+                    {% set register_flg = util_service.checkProductClassPriceId(form.register_flg.vars.data) %}
+                    {% if register_flg == true %}                        
+                        <div class="col-3 mb-2">
+                            {{ form_widget(form.register_flg) }}
+                            {{ form_errors(form.register_flg) }}                       
+                        </div>
+                    {% else %}
+                        <div class="col-3 mb-2">                        
+                                {{ form_widget(form.register_flg, { attr: { disabled : 'true'}}) }}
+                                {{ form_errors(form.register_flg) }}     
+                        </div>
+                        <div class="col-2 mb-2">                        
+                                <a class="btn btn-ec-regular ml-3" data-action="stripe-defpc-unregister" data-url="{{ url('stripe_rec_prodclass_unregister', { id : Product.DefaultClass.Id }) }}">
+                                    {{ 'stripe_recurring.admin.product_class.unregister'|trans }}
+                                </a>
+                        </div>
+                        <div>
+                            {{ form_widget(form.price_change_flg) }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        <div class="d-inline-block">
+                            <span>{{ 'stripe_recurring.admin.product_class.bundle_product.label'|trans }}</span>                        
+                        </div>
+                    </div>
+                    <div class="col-3 mb-2">
+                        {{ form_widget(form.bundle_product) }}
+                        {{ form_errors(form.bundle_product) }}                        
+                    </div>
+                    <div class="col-2 mb-2">
+                        {{ form_widget(form.bundle_required) }}
+                        {{ form_errors(form.bundle_required) }}
+                    </div>
+                </div>                
+                <div class="row">
+                    <div class="col-3">
+                        <div class="d-inline-block">
+                            <span>{{ 'stripe_recurring.admin.product_class.initial_price'|trans }}</span>                        
+                        </div>
+                    </div>
+                    <div class="col-3 mb-2">
+                        {{ form_widget(form.initial_price) }}
+                        {{ form_errors(form.initial_price) }}                        
+                    </div>
+                    <div class="col-2 mb-2">
+                        {{ form_widget(form.first_cycle_free) }}
+                        {{ form_errors(form.first_cycle_free) }}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="modal fade" id="stripe-reg-result" tabindex="-1" role="dialog"
+                aria-labelledby="stripe-reg-result" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">エラー</h5>
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="screen-name">{{ 'stripe_rec.admin.stripe_product.register_err'|trans }}</p>
+                        </div>
+                        <div class="modal-footer">                            
+                            <a class="btn btn-ec-sub" data-action="ok">
+                                {{ "stripe_recurring.admin.product.modal_body.confirm"|trans }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        
+        let modal = $("#stripe-reg-result");
+        if($("#basicConfig .card-body")[0]){
+            $($("#basicConfig .card-body")[0]).append($navi_add);
+        }
+
+{% if Product.DefaultClass and Product.isStripeProduct and register_flg != true %}
+        let $rec_el = $("#{{ form.class.price02.vars.id }}");
+        let val = $rec_el.val();
+
+        $rec_el.on("change", function(){
+            let cur_val = $rec_el.val();
+            
+                if( cur_val === val){
+                    $("#{{ form.price_change_flg.vars.id }}").val(0)
+                }else{
+                    $("#{{ form.price_change_flg.vars.id }}").val(1)
+                }
+
+        })
+{% endif %}
+
+        let modal_for_unregister = function(){
+            let modal = $("#stripe-reg-result");
+            modal.find('.modal-body .screen-name').text( `{{ "stripe_recurring.admin.product.modal_body.unregister"|trans }}`);
+            modal.find(".modal-footer").html(`
+            <a class="btn btn-ec-sub" data-action="ok">{{ "stripe_recurring.admin.product.modal_body.confirm"|trans }}</a>
+            <a class="btn btn-ec-sub" data-action="cancel">{{ "stripe_recurring.admin.product.modal_body.cancel"|trans }}</a>`)            
+        };
+        let modal_for_register = function(){
+            let modal = $("#stripe-reg-result");
+            modal.find('.modal-body .screen-name').text( `{{ 'stripe_rec.admin.stripe_product.register_err'|trans }}`);
+            modal.find(".modal-footer").html(`
+            <a class="btn btn-ec-sub" data-action="ok">{{ "stripe_recurring.admin.product.modal_body.confirm"|trans }}</a>`)            
+        }
+
+        let modal_for_def_pc_unregister = function(){
+            let modal = $("#stripe-reg-result");
+            modal.find('.modal-body .screen-name').text( `{{ "stripe_recurring.admin.product_def_pc.modal_body.unregister"|trans }}`);
+            modal.find(".modal-footer").html(`
+            <a class="btn btn-ec-sub" data-action="ok">{{ "stripe_recurring.admin.product.modal_body.confirm"|trans }}</a>
+            <a class="btn btn-ec-sub" data-action="cancel">{{ "stripe_recurring.admin.product.modal_body.cancel"|trans }}</a>`)
+        }
+
+        $("a[data-action='stripe-register']").on('click', function($e){
+            let $this = $(this);
+            modal_for_register();
+            let modal_func = function(){
+                let modal = $("#stripe-reg-result");
+                modal.modal("show");
+                modal.find('a[data-action="ok"]').on('click', function(){$("#stripe-reg-result").modal("hide");});
+            }
+            $.ajax({
+                url: $this.data('url'),
+                type: 'post',
+                data: { 'id' : {{ id }} },
+                dataType: 'json',
+                beforeSend: function() {
+                        // Buttonを無効にする
+                         $("a[data-action='stripe-register']").prop('disabled', true);
+                    }
+            }).done(function(data){
+                if(data.result){
+                    {% if id %}
+                    location.href = "{{ path('admin_product_product_edit', { 'id' : id }) }}";
+                    {% endif %}
+                } else {
+                    modal_func();
+                }
+            }).fail(function(){
+                modal_func()
+            })            
+        })
+        $("a[data-action='stripe-unregister']").on('click', function($e){
+            $e.preventDefault();
+            let modal = $("#stripe-reg-result");
+            let $this = $(this);
+            modal_for_unregister();
+            modal.modal("show");
+            modal.find("a[data-action='ok']").on("click", function(){
+                location.href = $this.data("url");
+            });
+            modal.find("a[data-action='cancel']").on('click', function(){
+                $("#stripe-reg-result").modal("hide");
+            })            
+        })
+
+        $("a[data-action='stripe-defpc-unregister']").on('click', function($e){
+            $e.preventDefault();
+            let modal = $("#stripe-reg-result");
+            let $this = $(this);
+            modal_for_def_pc_unregister();
+            modal.modal("show");
+            modal.find("a[data-action='ok']").on("click", function(){
+                location.href = $this.data("url");
+            });
+            modal.find("a[data-action='cancel']").on('click', function(){
+                $("#stripe-reg-result").modal("hide");
+            })
+            
+        })
+
+       $(document).on("click","#admin_product_first_cycle_free",function (){
+           if($(this).prop("checked")) {
+               $("#admin_product_initial_price").val(0);
+               $("#admin_product_initial_price").prop("disabled", true);
+           } else {
+               $("#admin_product_initial_price").prop("disabled", false);
+           }
+       });
+   })(jQuery);
+</script>

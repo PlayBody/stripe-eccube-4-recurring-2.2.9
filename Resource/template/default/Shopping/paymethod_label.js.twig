@@ -1,0 +1,17 @@
+<script>
+    $(function(){
+        var stripe_method = $("label[for='shopping_order_Payment_{{stripe_pay_id}}'] span");
+        {% if checkout_ga_enable %}
+        var ga_pay_icons = `<span class="ml-5"><i class="fab fa-cc-apple-pay"></i></span><span class="ml-5"><i class="fab fa-google-pay"></i></span>`;
+        {% else %}
+        var ga_pay_icons = ""
+        {% endif %}
+        var icons = `<span class="ml-5"><i class="fas fa-credit-card"></i></span>` + ga_pay_icons;
+        stripe_method.html(`{{ method_name }}` + icons);
+    })
+</script>
+<style>
+.ml-5{
+    margin-left: 5px;
+}
+</style>

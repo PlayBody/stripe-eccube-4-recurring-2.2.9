@@ -1,0 +1,27 @@
+{% if Order.Payment.getMethodClass == 'Plugin\\StripeRec\\Service\\Method\\StripeRecurringNagMethod' %}
+    <div style="display: none;">        
+        <div class="bundle-amount">
+            {% if bundles['bundle_amount'] %}
+            <dl class="ec-totalBox__spec">
+                <dt>{{ 'stripe_recurring.mypage.schedule.bundle_product'|trans }}</dt>
+                <dd>{{ bundles['bundle_amount']|price }}</dd>
+            </dl>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        $(function () {
+            
+            let add_bundle = function(){
+                
+                $(".bundle-amount").insertBefore(".ec-totalBox__paymentTotal")
+                {% if bundles['bundle_amount'] %}            
+                $(".ec-totalBox__paymentTotal .ec-totalBox__price").text("{{ (Order.payment_total + bundles['bundle_amount'])|trans }}")                
+                {% endif %}
+            }            
+            add_bundle();            
+            
+        });
+    </script>
+{% endif %}

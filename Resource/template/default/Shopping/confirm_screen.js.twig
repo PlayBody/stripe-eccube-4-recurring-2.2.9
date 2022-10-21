@@ -1,0 +1,11 @@
+{% if Order.Payment.getMethodClass == 'Plugin\\StripeRec\\Service\\Method\\StripeRecurringNagMethod' %}
+<script>
+    $(function(){
+        $("#shopping-form [type=submit]").text("決済する")
+        $("#shopping-form [type=submit]").on('click', function(e){
+            e.preventDefault();
+            $("#shopping-form").attr('action', "{{ url('plugin_striperec_checkout_page') }}").submit();
+        })
+    })
+</script>
+{% endif %}

@@ -1,0 +1,184 @@
+<script>
+    var stripe = Stripe("{{ stripConfig.publishable_key }}");
+    var stripeCreditCardPaymentId='{{ stripeCreditCardPaymentId }}';
+    $(document).ready(function () {
+        var formID = 'shopping-form';
+        var isInvalidCardType = false;
+        var inValidCardTypeError = {code: "card_declined", type: "card_error", message: "対象外のカードのため、拒否されました。"};
+
+        //Handle change card
+        $(document).on("click","#change-stripe-card",function(){
+            $(".available-card").slideUp();
+            $("#card-element").slideDown();
+            $(".stripe-card-notes").slideDown();
+        });
+        $(document).on("click","#default-stripe-card",function(){
+            $("#card-element").slideUp();
+            $(".stripe-card-notes").slideUp();
+            $(".available-card").slideDown();
+        });
+
+        var locale = '{{ stripe_locale }}';
+        function getStripeErrorMessage(error) {
+            var message = '';
+            var type = error.type;
+            var code = error.code;
+            message = error.message;
+            if( locale == 'ja') {
+                switch(code) {
+                    case 'card_declined':
+                        message = 'カードを請求できませんでした。';
+                        break;
+                    case 'payment_intent_authentication_failure':
+                        message = 'カード認証に失敗しました。ご確認の上再度ご入力ください。';
+                        break;
+                }
+            }
+            showStripeErrorMessage(message);
+        }
+        // Create an instance of Elements.
+        var elements = stripe.elements({locale: locale});
+
+        // Custom styling can be passed to options when creating an Element.
+        // (Note that this demo uses a wider set of styles than the guide below.)
+        var style = {
+            base: {
+                color: '#32325d',
+                lineHeight: '18px',
+                fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                fontSmoothing: 'antialiased',
+                fontSize: '16px',
+                '::placeholder': {
+                    color: '#aab7c4'
+                }
+            },
+            invalid: {
+                color: '#fa755a',
+                iconColor: '#fa755a'
+            }
+        };
+
+        // Create an instance of the card Element.
+        var card = elements.create('card', {style: style, hidePostalCode: true});
+
+        // Add an instance of the card Element into the `card-element` <div>.
+        card.mount('#card-element');
+
+        // Handle real-time validation errors from the card Element.
+        card.addEventListener('change', function (event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        // Handle form submission.
+        $('#' + formID).submit(function (e) {
+            if ($('input[name="_shopping_order[Payment]"]:checked').val() != stripeCreditCardPaymentId || e.target.action.indexOf("confirm")==-1) {
+                $('#shopping_order_stripe_payment_intent_id').remove();
+                return true;
+            }
+            e.preventDefault();
+
+            $('.bg-load-overlay').css('z-index', 3000);
+            if($("#stripe_customer").val() && $('#card-element:visible').length==0){
+                var lastPaymentMethodId = $("#stripe_last_payment_method_id").val();
+                stripePaymentHandler(lastPaymentMethodId, true);
+                return true;
+            } else {
+                // console.log("payment --- start step1 - createPaymentMethod");
+                stripe.createPaymentMethod({
+                    type: 'card',
+                    card: card,
+                }).then( function (result) {
+                    // console.log("payment --- start step1 - createPaymentMethod - Done", result);
+                    if (result.error) {
+                        showStripeErrorMessage(result.error.message);
+                        return false;
+                    } else {
+                        var isSaveCardOn = $("#shopping_order_is_save_card_on").is(":checked")
+                        stripePaymentHandler(result.paymentMethod.id, isSaveCardOn);
+                    }
+                });
+                return true;
+            }
+        });
+
+        function stripeReadyHandler(paymentIntentId) {
+            // console.log("stripeReadyHandler--- step final: ", paymentIntentId);
+            var form = document.getElementById(formID);
+            $('#shopping_order_stripe_payment_intent_id').val(paymentIntentId);
+            // Submit the form
+            form.submit();
+        }
+
+        function stripePaymentHandler(paymentMethodId, isSaveCardOn) {
+            // console.log("stripePaymentHandler:payment --- step2 - request intent - start ", paymentMethodId, isSaveCardOn);
+            $.ajax({
+                type: 'POST',
+                data: {
+                    payment_method_id: paymentMethodId,
+                    is_save_card_on: isSaveCardOn? 1:0
+                },
+                url: '{{ url("plugin_stripe_payment_gateway_payment") }}',
+                success: function(data) {
+                    // console.log("payment --- step2 - success: ", data);
+                    stripeResponseHandler(data);
+                },
+                error: function(error) {
+                    loadingOverlay('hide');
+                    conosle.log("error", error);
+                }
+            });
+        }
+
+        function showStripeErrorMessage(message) {
+            loadingOverlay('hide');
+            $('#order-button').removeAttr('disabled');
+            var errorElement = document.getElementById('card-errors');
+            errorElement.textContent = message;
+        }
+
+        function stripeResponseHandler(response) {
+            switch(response.action) {
+                case 'requires_new_card':
+                    showStripeErrorMessage(response.message);
+                    return;
+                    break;
+                case 'requires_action':
+                    stripeCardActionHandler(response.client_secret);
+                    return;
+                case 'requires_capture':
+                    stripeReadyHandler(response.payment_intent_id);
+                    return;
+
+            }
+            showStripeErrorMessage(response.message);
+        }
+
+        function stripeCardActionHandler(client_secret) {
+            // console.log("stripeCardActionHandler --- step3 - handle action - start ", client_secret);
+            // loadingOverlay('hide');
+            stripe.confirmCardPayment(
+                client_secret
+            ).then( function(result) {
+                console.log("stripeCardActionHandler --- step3 - handle action - done ", result);
+                if(result.error) {
+                    getStripeErrorMessage(result.error);
+                } else {
+                    stripeReadyHandler(result.paymentIntent.id);
+                }
+            });
+        }
+
+        window.addEventListener('resize', function (event) {
+            if (window.innerWidth <= 320) {
+                card.update({style: {base: {fontSize: '13px'}}});
+            } else {
+                card.update({style: {base: {fontSize: '16px'}}});
+            }
+        });
+    });
+</script>

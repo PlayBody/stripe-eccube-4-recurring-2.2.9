@@ -1,0 +1,107 @@
+<script type="text/javascript">
+    var stripe = Stripe("{{ stripConfig.getPublishableKey() }}");
+    var stripeCreditCardPaymentId={{ stripeCreditCardPaymentId }};
+    $(document).ready(function () {
+        var formID = 'shopping-form';
+        var isInvalidCardType = false;
+        var inValidCardTypeError = {code: "card_declined", type: "card_error", message: "対象外のカードのため、拒否されました。"};
+
+        //Handle change card
+        $(document).on("click","#change-stripe-card",function(){
+            $(".available-card").slideUp();
+            $("#card-element").slideDown();
+            $(".stripe-card-notes").slideDown();
+        });
+        $(document).on("click","#default-stripe-card",function(){
+            $("#card-element").slideUp();
+            $(".stripe-card-notes").slideUp();
+            $(".available-card").slideDown();
+        });
+
+        // Create an instance of Elements.
+        var elements = stripe.elements({locale: '{{ locale }}'});
+
+        // Custom styling can be passed to options when creating an Element.
+        // (Note that this demo uses a wider set of styles than the guide below.)
+        var style = {
+            base: {
+                color: '#32325d',
+                lineHeight: '18px',
+                fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                fontSmoothing: 'antialiased',
+                fontSize: '16px',
+                '::placeholder': {
+                    color: '#aab7c4'
+                }
+            },
+            invalid: {
+                color: '#fa755a',
+                iconColor: '#fa755a'
+            }
+        };
+
+        // Create an instance of the card Element.
+        var card = elements.create('card', {style: style, hidePostalCode: true});
+
+        // Add an instance of the card Element into the `card-element` <div>.
+        card.mount('#card-element');
+
+        // Handle real-time validation errors from the card Element.
+        card.addEventListener('change', function (event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        // Handle form submission.
+        $('#' + formID).submit(function (e) {
+
+            if ($('input[name="_shopping_order[Payment]"]:checked').val() != stripeCreditCardPaymentId || e.target.action.indexOf("confirm")==-1) {
+                $('#shopping_order_stripe_token').remove();
+                return true;
+            }
+            if($("#stripe_customer").val() && $('#card-element:visible').length==0){
+                return true;
+            }
+
+            e.preventDefault();
+            stripe.createToken(card).then(function (result) {
+                if (result.error) {
+                    // Inform the user if there was an error.
+                    var errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = result.error.message;
+                    loadingOverlay('hide');
+                    $('#order-button').removeAttr('disabled');
+                    return false;
+                } else {
+                    // Send the token to your server.
+                    stripeTokenHandler(result.token);
+                }
+            });
+        });
+        function stripeTokenHandler(token) {
+            // Insert the token ID into the form so it gets submitted to the server
+            var form = document.getElementById(formID);
+            /*var hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute('type', 'hidden');
+            hiddenInput.setAttribute('name', 'stripeToken');
+            hiddenInput.setAttribute('value', token.id);
+            form.appendChild(hiddenInput);*/
+            $('#shopping_order_stripe_token').val(token.id);
+
+            // Submit the form
+            form.submit();
+        }
+
+        window.addEventListener('resize', function (event) {
+            if (window.innerWidth <= 320) {
+                card.update({style: {base: {fontSize: '13px'}}});
+            } else {
+                card.update({style: {base: {fontSize: '16px'}}});
+            }
+        });
+    });
+</script>

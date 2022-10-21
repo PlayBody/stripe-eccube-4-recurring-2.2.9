@@ -1,0 +1,220 @@
+{% extends '@admin/default_frame.twig' %}
+
+{% set menus = ['stripe', 'stripe_rec_config'] %}
+
+{% block title %}{{ 'stripe_payment_gateway.admin.config.title'|trans }}{% endblock %}
+{% block sub_title %}{{ 'stripe_payment_gateway.admin.config.sub_title'|trans }}{% endblock %}
+
+
+
+{% block stylesheet %}
+
+{% endblock stylesheet %}
+
+{% block main %}
+{% if licensed == 0 %}
+    {% form_theme form_license '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %}
+    <form role="form" method="post">
+        {{ form_widget(form_license._token) }}
+        <div class="c-contentsArea__cols">
+            <div class="c-contentsArea__primaryCol">
+                <div class="c-primaryCol">
+                    <div class="card rounded border-0 mb-4">
+                        <div class="card-header"><span>{{ 'stripe_recurring.admin.license.header'|trans }}</span></div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-3"><span>{{ 'stripe_recurring.admin.license.license_key'|trans }}</span><span
+                                            class="badge badge-primary ml-1">{{ 'stripe_recurring.admin.license.required'|trans }}</span></div>
+                                <div class="col mb-2">
+                                    {{ form_widget(form_license.license_key) }}
+                                    {{ form_errors(form_license.license_key) }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3"><span>{{ 'stripe_recurring.admin.license.email'|trans }}</span><span
+                                            class="badge badge-primary ml-1">{{ 'stripe_recurring.admin.license.required'|trans }}</span></div>
+                                <div class="col mb-2">
+                                    {{ form_widget(form_license.email) }}
+                                    {{ form_errors(form_license.email) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="c-conversionArea">
+            <div class="c-conversionArea__container">
+                <div class="row justify-content-between align-items-center">
+                    <div class="col-6">
+                        <div class="c-conversionArea__leftBlockItem">
+                            <a class="c-beseLink"
+                            href="{{ url('admin_store_plugin') }}">
+                                <i class="fa fa-backward" aria-hidden="true"></i>
+                                <span>{{ 'stripe_payment_gateway.admin.config.back'|trans }}</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row align-items-center justify-content-end">
+                            <div class="col-auto">
+                                <button class="btn btn-ec-conversion px-5" type="submit">
+                                    {{ 'stripe_recurring.admin.license.confirm'|trans }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% elseif licensed == 1 %}
+{% form_theme form '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %}
+<form role="form" method="post">
+
+    {{ form_widget(form._token) }}
+
+    <div class="c-contentsArea__cols">
+        <div class="c-contentsArea__primaryCol">
+            <div class="c-primaryCol">
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header"><span>{{ 'stripe_recurring.admin.config.header'|trans }}</span></div>
+                    <div class="card-body">                            
+                        <div class="row">
+                            <div class="col-3"><span>{{ 'stripe_recurring.admin.purchase_point_label'|trans }}</span></div>
+                            <div class="col mb-2">
+                                {% set point_form = form.purchase_point %}
+                                <!-- 各対応状況の件数を表示する -->
+                                {% for id, child in point_form.children %}
+                                    <div class="form-check form-check-inline">
+                                        <input type="checkbox"
+                                                id="{{ child.vars.id }}"
+                                                name="{{ child.vars.full_name }}"
+                                                class="form-check-input"
+                                                value="{{ child.vars.value }}"{{ point_form.vars.checked[child.vars.value] ? ' checked="checked"' }}>
+                                        <label class="form-check-label" for="{{ child.vars.id }}">{{ child.vars.label }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3"><span>{{ 'stripe_recurring.config.label.payday_option'|trans }}</span></div>
+                            <div class="col mb-2">
+                                {{ form_widget(form.payday_option) }}
+                                {{ form_errors(form.payday_option) }}                                
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">{{ "stripe_recurring.config.label.initial_payment_calc"|trans }}</div>
+                            <div class="col-2 mb-3">
+                                {{ form_widget(form.pay_full) }}
+                                {{ form_errors(form.pay_full) }}
+                            </div>
+                        </div>
+                        <div class="payment_date_wrapper row">
+                            <div class="col-3"><span>{{ 'stripe_recurring.config.label.payment_date'|trans }}</span></div>
+                            <div class="col-2 mb-3">
+                                {{ form_widget(form.payment_date) }}
+                                {{ form_errors(form.payment_date) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3"><span>{{ 'stripe_recurring.admin.config.webhook_signature.label'|trans }}</span></div>
+                            <div class="col mb-2">
+                                {{ form_widget(form.rec_webhook_sig) }}
+                                {{ form_errors(form.rec_webhook_sig) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3"><span>{{ 'stripe_recurring.admin.coupon_enable.label'|trans }}</span></div>
+                            <div class="col-2 mb-2">
+                                {{ form_widget(form.coupon_enable) }}
+                                {{ form_errors(form.coupon_enable) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="d-inline-block" data-tooltip="true" data-placement="top" title="{{ 'stripe_recurring.admin.multi_product.tooltip'|trans }}">
+                                    <span>{{ 'stripe_recurring.admin.multi_product.label'|trans }}</span><i class="fa fa-question-circle fa-lg ml-1"></i>
+                                </div>
+                            </div>
+                            <div class="col-2 mb-2">
+                                {{ form_widget(form.multi_product) }}
+                                {{ form_errors(form.multi_product) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="d-inline-block" data-tooltip="true" data-placement="top">
+                                    <span>定期決済事前お知らせ</span>
+                                </div>
+                            </div>
+                            <div class="col-2 mb-2">
+                                {{ form_widget(form.incoming_mail) }}
+                                {{ form_errors(form.incoming_mail) }}
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-3"><span>Webhook エンドポイントURL</span></div>
+                            <div class="col mb-2">
+                                {# {{ app.request.schemeAndHttpHost }}{{ app.request.basePath }}/plugin/StripeRec/webhook #}
+                                {{ url('plugin_stripe_rec_webhook') }}
+                                <div class="ga_pay_enable_notice mt-2">
+                                Webhook登録を行う時は下記のイベントを許可してください。<br><br>
+                                    checkout.session.completed<br>
+                                    invoice.paid<br>
+                                    invoice.payment_failed<br>
+                                    invoice.upcoming<br>
+                                    invoice.finalized<br>
+                                    customer.subscription.created<br>
+                                    customer.subscription.updated<br>
+                                    customer.subscription.deleted<br>
+                                    subscription_schedule.canceled
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="c-conversionArea">
+        <div class="c-conversionArea__container">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-6">
+                    <div class="c-conversionArea__leftBlockItem">
+                        <a class="c-beseLink"
+                            href="{{ url('admin_store_plugin') }}">
+                            <i class="fa fa-backward" aria-hidden="true"></i>
+                            <span>プラグイン一覧</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="row align-items-center justify-content-end">
+                        <div class="col-auto">
+                            <button class="btn btn-ec-conversion px-5"
+                                    type="submit">登録</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+$(function () {
+    // var mid_date_option = $("#{{ form.payday_option.vars.id }} input[value='mid_date']");
+    // var mid_option_change = function(){
+    //     if(mid_date_option.is(":checked")){
+    //         $(".payment_date_wrapper").show();
+    //     }else{
+    //         $(".payment_date_wrapper").hide();
+    //     }
+    // }
+    // mid_date_option.on("change", mid_option_change);
+    // mid_option_change();
+});
+</script>
+{% endif %}
+{% endblock %}

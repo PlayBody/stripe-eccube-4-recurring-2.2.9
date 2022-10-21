@@ -1,0 +1,61 @@
+{% if Order.Payment.getMethodClass == 'Plugin\\StripeRec\\Service\\Method\\StripeRecurringNagMethod' %}
+    <div style="display: none;">        
+        <div class="bundle-amount">
+            {# {% if bundles['bundle_amount'] %} #}
+            <dl class="ec-totalBox__spec">
+                <dt>{{ 'stripe_recurring.mypage.schedule.bundle_product'|trans }}</dt>
+                <dd id="bundle-amount-val"></dd>
+            </dl>
+            {# {% endif %} #}
+        </div>
+        <div class="ec-totalBox__paymentTotal_recurring" style="text-align: right">{{ 'stripe_recurring.mypage.recurring.regular_payment_amount'|trans }}
+            <span class="ec-totalBox__price">{{ Order.payment_total|price }}</span>
+            <span class="ec-totalBox__taxLabel">税込</span>
+        </div>
+    </div>
+    
+    <script>
+        $(function () {            
+            const toCurrency = function(n, curr, LanguageFormat = undefined){                
+                return Intl.NumberFormat(LanguageFormat, { style: 'currency', currency: curr }).format(n);
+            }
+
+            {% set order_subtotal = Order.InitialSubTotal %}
+            // Subtotal change into initial subtotal
+            $(".ec-totalBox .ec-totalBox__spec .ec-totalBox__specTotal").text(
+                toCurrency({{ order_subtotal }}, '{{ Order.CurrencyCode }}')
+            )
+            // Change sum to compensate initial price
+            $(".ec-totalBox__total .ec-totalBox__price").text(
+                toCurrency({{Order.taxable_total + order_subtotal - Order.SubTotal }}, '{{ Order.CurrencyCode }}')
+            )
+            
+            $(".bundle-amount").insertBefore(".ec-totalBox__paymentTotal")
+            $(".ec-totalBox__paymentTotal_recurring").insertAfter(".ec-totalBox__paymentTotal")
+            let calcBundle = function(){
+                var bundle_amount = 0;
+                $(".bundle-checkbox").each(function(index, item){
+                    var item = $(item)
+                    if(item.is(":checked")){
+                        bundle_amount += item.data('value')
+                    }
+                });
+                return bundle_amount;
+            }
+            let check_bundle = function(){
+                var bundle_amount = calcBundle()
+                console.log(bundle_amount)
+                console.log(toCurrency(bundle_amount, '{{ Order.CurrencyCode }}'))
+                $("#bundle-amount-val").text(toCurrency(bundle_amount, '{{ Order.CurrencyCode }}'))
+                var total = bundle_amount + {{ Order.payment_total + order_subtotal - Order.SubTotal }};
+                $(".ec-totalBox__paymentTotal .ec-totalBox__price").text( toCurrency(total, '{{ Order.CurrencyCode }}'))
+            }
+            check_bundle()
+
+            $(".bundle-checkbox").on("change", function(){
+                check_bundle()
+            })
+
+        });
+    </script>
+{% endif %}

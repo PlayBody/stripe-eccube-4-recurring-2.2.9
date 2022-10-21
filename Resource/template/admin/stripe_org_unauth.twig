@@ -1,0 +1,24 @@
+{% extends '@admin/default_frame.twig' %}
+
+{% set menus = ['stripe', 'stripe_rec_config'] %}
+
+{% block title %}{{ 'stripe_payment_gateway.admin.config.title'|trans }}{% endblock %}
+{% block sub_title %}{{ 'stripe_payment_gateway.admin.config.sub_title'|trans }}{% endblock %}
+
+{# {% form_theme form '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %} #}
+
+{% block stylesheet %}
+
+{% endblock stylesheet %}
+
+{% block main %}
+<div class="c-contentsArea__cols">
+    <div class="c-contentsArea__primaryCol">
+        <div class="c-primaryCol">
+            <div class="text-center">
+            Stripe 決済プラグインがテストモードになっています。テストキーを削除するには、プラグインを再インストールしてください。
+            </div>        
+        </div>
+    </div>
+</div>
+{% endblock %}

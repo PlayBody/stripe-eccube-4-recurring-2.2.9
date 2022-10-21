@@ -1,0 +1,81 @@
+{% if Order.Payment.getMethodClass == 'Plugin\\StripeRec\\Service\\Method\\StripeRecurringNagMethod' %}
+
+    <script>    
+        $(function () {
+            // $('#StripePaymentContainer').first().after($('#purchase_point_container'));
+            $('.ec-orderPayment').first().after($('#purchase_point_container'));
+            $("input[name='purchase_point']").on('change', function(e){                
+                if($(e.target).val() === "after_days"){
+                    let str = $('#after_days_wrapper').html();
+                    $('#purchase_point_container').append($(str));
+                }else{
+                    $('#purchase_point_container #after_days').remove();
+                }
+            })            
+        });
+    </script>
+    <div style="display: none;">
+        <div class="ec-orderPayment" id="purchase_point_container">
+            <div class="ec-rectHeading">
+                <h2>{{ 'stripe_recurring.admin.purchase_point_label'|trans }}</h2>
+            </div>
+            <div>
+                {% for purchase_point in purchase_points %}
+                {% set idx = loop.index0 %}
+                    <div class="form-check form-check-inline">
+                        <input type="radio"
+                                id="purchase_point_{{ purchase_point.Id }}"
+                                name="purchase_point"
+                                class="form-check-input"
+                                value="{{ purchase_point.point }}"  
+                                data-point="{{ purchase_point.point }}" required
+                                {% if idx == 0 %}
+                                checked
+                                {% endif %}>
+                        <label class="form-check-label" for="purchase_point_{{ purchase_point.Id }}">{{ purchase_point.Name }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div id="after_days_wrapper">
+            <div class="ec-input" id="after_days">
+                <p>{{ 'stripe_recurring.admin.purchase_point_after_days.input_label'|trans }}</p>
+                {# <input type="date" name="after_days" class="form-control" min="{{ 'now'|date('m/d/Y') }}" required> #}
+                <div>
+                    {# <div style="width: 30%; display: inline-block">                    
+                        <div style="width: 25%; display: inline-block">
+                            Year
+                        </div>
+                        <div style="width:66%; display: inline-block">
+                        {{ form_widget(form.after_days.year) }}
+                        </div>
+                    </div>
+                    <div style="width: 30%; display: inline-block">
+                        <div style="width: 25%; display: inline-block">
+                            Month
+                        </div>
+                        <div style="width:66%; display: inline-block">
+                            {{ form_widget(form.after_days.month) }}
+                        </div>
+                    </div>
+                    <div style="width: 30%; display: inline-block">
+                        <div style="width: 25%; display: inline-block">
+                            Day
+                        </div>
+                        <div style="width:66%; display: inline-block">
+                            {{ form_widget(form.after_days.day) }}
+                        </div>
+                    </div>
+                    <div> #}
+                    {{ form_widget(form.after_days) }}
+                    {{ form_errors(form.after_days) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var after_days_input = $("#shopping_order_after_days");
+        after_days_input.attr("type", "date")
+    </script>
+{% endif %}

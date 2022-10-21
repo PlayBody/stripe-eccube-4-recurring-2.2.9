@@ -1,0 +1,31 @@
+<?php
+
+
+namespace Plugin\StripeRec\Repository;
+
+use Eccube\Repository\AbstractRepository;
+use Symfony\Bridge\Doctrine\RegistryInterface;
+use Plugin\StripeRec\Entity\CheckoutSession;
+use Eccube\Repository\OrderRepository;
+
+class CheckoutSessionRepository extends AbstractRepository{
+    
+    protected $order_repo;
+
+    public function __construct(
+        RegistryInterface $registry,
+        OrderRepository $order_repo
+        ){
+        parent::__construct($registry, CheckoutSession::class);
+        $this->order_repo = $order_repo;
+    }
+
+    public function getOrderBySession($session_id){
+        $session = $this->findOneBy(['session_id'   =>  $session_id]);
+        if(empty($session)){
+            return null;
+        }
+        return $this->order_repo->findOneBy(['id'  =>  $session->getOrderId()]);
+    }
+    
+}

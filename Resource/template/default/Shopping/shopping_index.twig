@@ -1,0 +1,54 @@
+{% if Order.Payment.getMethodClass == 'Plugin\\StripeRec\\Service\\Method\\StripeRecurringNagMethod' %}
+    
+    <li>
+        <div class="ec-imageGrid">
+            <div class="ec-imageGrid__img"><img src="{{ asset((orderItem.product is null ? null : orderItem.product.MainListImage)|no_image_product, 'save_image') }}" alt="{{ orderItem.productName }}"></div>
+            <div class="ec-imageGrid__content">
+                <p>{{ orderItem.productName }}
+                {# {% if is_reduced_tax_rate(orderItem) %}{{ '※'|trans }}{% set isShowReducedTaxMess = true %}{% endif %} #}
+                </p>
+                {% if orderItem.productClass is not null and orderItem.productClass.classCategory1 %}
+                    <p>{{ orderItem.productClass.classCategory1.className.name }}：{{ orderItem.productClass.classCategory1 }}</p>
+                {% endif %}
+                {% if orderItem.productClass is not null and orderItem.productClass.classCategory2 %}
+                    <p>{{ orderItem.productClass.classCategory2.className.name }}：{{ orderItem.productClass.classCategory2 }}</p>
+                {% endif %}
+                <p>{{ orderItem.priceIncTax|price }} × {{ orderItem.quantity|number_format }}<span>{{ '小計：'|trans }}{{ orderItem.totalPrice|price }}</span></p>
+                {% if orderItem.productClass.InitialPriced %}
+                    <p>{{ 'stripe_recurring.admin.product_class.initial_price'|trans }}：{{ orderItem.productClass.InitialPriceIncTax|price }}
+                {% endif %}
+            </div>
+        </div>
+        {% if bundles['shipping_bundle'][idx]['order_items'][orderItem.Id] is defined %}
+        
+            {% set bundle_item = bundles['shipping_bundle'][idx]['order_items'][orderItem.Id] %}
+            <div class="ec-imageGrid bundle-product-wrap">
+                <div class="ec-imageGrid__img">
+                    <img src="{{ asset((bundle_item['product_class'].product is null ? null : bundle_item['product_class'].product.MainListImage)|no_image_product, 'save_image') }}" 
+                        alt="{{ bundle_item['product_class'].product.Name }}">
+                </div>
+                <div class="ec-imageGrid__content">
+                    <p>{{ bundle_item['product_class'].product.Name }}</p>
+                    {% if bundle_item['product_class'] is not null and bundle_item['product_class'].classCategory1 %}
+                        <p>{{ bundle_item['product_class'].classCategory1.className.name }}：{{ bundle_item['product_class'].classCategory1 }}</p>
+                    {% endif %}
+                    {% if bundle_item['product_class'] is not null and bundle_item['product_class'].classCategory2 %}
+                        <p>{{ bundle_item['product_class'].classCategory2.className.name }}：{{ bundle_item['product_class'].classCategory2 }}</p>
+                    {% endif %}
+                    <p>{{ bundle_item['product_class'].Price02IncTax|price }} × {{ bundle_item['quantity']|number_format }}<span>{{ '小計：'|trans }}{{ (bundle_item['product_class'].Price02IncTax * bundle_item['quantity'])|price }}</span></p>
+                </div>
+                <div>
+                    <input id="bundle_check_{{bundle_item['order_item_id']}}" type="checkbox" 
+                        name="bundle_include[{{ bundle_item['order_item_id'] }}]" value="1" checked
+                        class="bundle-checkbox"
+                        data-value="{{ (bundle_item['product_class'].Price02IncTax * bundle_item['quantity']) }}"
+                        {% if bundle_item['main_product_class'].BundleRequired or  is_bundle_disabled %} 
+                            disabled {{bundle_item['main_product_class'].BundleRequired}}
+                        {% endif %}>
+                    <label for="bundle_check_{{bundle_item['order_item_id']}}" >{{ 'stripe_recurring.mypage.schedule.bundle_product'|trans }} </label>
+                </div>
+            </div>
+        {% endif %}
+    </li>
+{% endif %}            
+            

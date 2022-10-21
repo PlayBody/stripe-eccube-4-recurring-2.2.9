@@ -1,0 +1,4 @@
+twig:
+    globals:
+        util_service: "@plg_stripe_recurring.service.util"
+        pb_service: "@plg_stripe_rec.service.pointbundle_service"

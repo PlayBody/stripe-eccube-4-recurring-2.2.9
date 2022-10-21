@@ -1,0 +1,18 @@
+<script>
+    $(function(){
+        {% for url in recItemMap %}
+            var button = $("[href='{{ url }}']")
+            button.hide();
+            button.parents('.ec-cartRow__amountUpDown').hide();
+
+            {# {% if StripeOrder.charge_id!='' %}
+                var targetTR=$("#search_result").find("a[href='{{ StripeOrder.order_edit_url }}']").parents("tr");
+                var targetTD=targetTR.find("td:nth(2)");
+                if(targetTD.find('.stripeChargeID').length==0){
+                    var htmlToAppend='<a class="stripeChargeID" href="{{ StripeOrder.dashboard_url }}" target="_blank">{{ StripeOrder.charge_id }}</a>';
+                    targetTD.append(htmlToAppend);
+                }
+            {% endif %} #}
+        {% endfor %}
+    });
+</script>

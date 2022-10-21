@@ -1,0 +1,33 @@
+<script>
+    var stripe = Stripe("{{ stripConfig.publishable_key }}");
+    var checkout_btn = document.querySelector("#shopping-form button[type='submit']")
+    checkout_btn.addEventListener('click', function($event){
+        $event.preventDefault();
+        fetch('{{ path("plugin_stripe_rec_create_session") }}',{
+            method: 'POST',
+        })
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(response){
+            if(response.success){
+                return stripe.redirectToCheckout({ sessionId: response.id })
+            }else{
+                if(response.reason === 'unauthed'){
+                    location.href = "{{ path('shopping_login') }}"
+                }else{
+                    alert(response.msg || "{{ 'stripe_payment_gateway.shopping_error'|trans }}");
+                }
+            }
+            
+        })
+        .then(function(result) {
+            if(result.error){
+                alert(result.error.message)
+            }
+        })
+        .catch(function(error){
+            console.error('Error:' , error);
+        })
+    });
+</script>

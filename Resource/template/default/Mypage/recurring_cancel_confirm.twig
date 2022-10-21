@@ -1,0 +1,85 @@
+{#
+/*
+* Plugin Name : StripeRec
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
+#}
+{% extends  'default_frame.twig' %}
+
+{% set mypageno = 'mypage_stripe_rec' %}
+
+{% set body_class = 'mypage' %}
+
+{% block main %}
+    <div class="ec-layoutRole__main">
+        <div class="ec-mypageRole">
+            <div class="ec-pageHeader">
+                <h1>{{ 'front.mypage.title'|trans }}/{{ 'stripe_recurring.mypage.recurring.breadcrump'|trans }}</h1>
+            </div>
+            {{ include('Mypage/navi.twig') }}
+        </div>
+        <div class="ec-mypageRole">   
+            <form action="{{ url('mypage_stripe_rec_cancel', {'id': rec_order.Id}) }}" method="POST">
+                <div class="ec-withdrawConfirmRole">
+                    <div class="ec-off3Grid">
+                        <div class="ec-off3Grid__cell">
+                            <div style="font-size:100px;text-align:center;">
+                                <div class="ec-icon"><img src="{{ asset('assets/icon/exclamation.svg') }}" alt=""></div>
+                            </div>
+                            <p class="ec-withdrawConfirmRole__title">{{ 'stripe_recurring.mypage.recurring_cancel_confirm'|trans }}</p>
+                            <p class="ec-withdrawConfirmRole__description">
+                                {% for OrderItem in rec_order.OrderItems %}
+                                {# {% set OrderItem = rec_order.OrderItem %} #}
+                                <div class="ec-imageGrid">
+                                    <div class="ec-imageGrid__img">
+                                        {% if OrderItem.Product is null %}
+                                            <img src="{{ asset(''|no_image_product, 'save_image') }}"/>
+                                        {% else %}
+                                            <img src="{{ asset(OrderItem.Product.MainListImage|no_image_product, 'save_image') }}">
+                                        {% endif %}
+                                    </div>
+                                    <div class="ec-imageGrid__content">
+                                        <p class="ec-historyRole__detailTitle">{{ OrderItem.Product.Name }}</p>
+                                        {% if OrderItem.ProductClass.ClassCategory1 and OrderItem.ProductClass.ClassCategory1.Name is not empty %}
+                                            {{ OrderItem.ProductClass.ClassCategory1.Name }}
+                                        {% endif %}
+                                        {% if OrderItem.ProductClass.ClassCategory2 and OrderItem.ProductClass.ClassCategory2.Name is not empty %}
+                                            / {{ OrderItem.ProductClass.ClassCategory2.Name }}
+                                        {% endif %}
+                                        <p class="ec-historyRole__detailPrice">{{ OrderItem.ProductClass.Price02IncTax|price }}
+                                            × {{ OrderItem.quantity }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="ec-off3Grid" style="margin-top: 20px;">
+                        <div class="ec-off3Grid__cell">
+                            <p class="ec-withdrawConfirmRole__title">{{ 'stripe_recurring.mypage.recurring_cancel_confirm.reason'|trans }}</p>
+                            <div>
+                                <textarea name="cancel_reason" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                                    
+                    <div class="ec-off4Grid" style="margin-top: 30px;">
+                        <div class="ec-off4Grid__cell">
+                            <a class="ec-withdrawConfirmRole__cancel ec-blockBtn--cancel" href="{{ url('mypage_stripe_rec') }}">
+                                {{ 'stripe_recurring.mypage.recurring.cancel_confirm.btn_cancel'|trans }}
+                            </a>
+                            <button type="submit" class="ec-blockBtn" name="mode">
+                            {{ 'stripe_recurring.mypage.recurring.cancel_confirm.btn_confirm'|trans }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+{{ include('StripeRec/Resource/template/default/Mypage/navi.twig') }}
+{% endblock %}

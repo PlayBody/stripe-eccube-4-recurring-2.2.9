@@ -1,0 +1,199 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% extends '@admin/default_frame.twig' %}
+
+{% set menus = ['order', 'stripe_rec_mng'] %}
+
+{% block title %}定期コースCSV{% endblock %}
+{% block sub_title %}編集{% endblock %}
+
+{# {% form_theme form '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %} #}
+
+{% block javascript %}
+    <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.core.min.js', 'admin') }}"></script>
+    <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.widget.min.js', 'admin') }}"></script>
+    <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.mouse.min.js', 'admin') }}"></script>
+    <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.sortable.min.js', 'admin') }}"></script>
+    <script>
+        $(function() {
+            // 初期表示時のsort noを保持.
+            var oldSortNos = [];
+            $('.sortable-item').each(function() {
+                oldSortNos.push(this.dataset.sortNo);
+            });
+            oldSortNos.sort(function(a, b) {
+                return a - b;
+            })
+            //.reverse();
+            // 並び替え後にsort noを更新
+            var updateSortNo = function() {
+                var newSortNos = {};
+                var i = 0;
+                $('.sortable-item').each(function() {
+                    newSortNos[this.dataset.id] = oldSortNos[i];
+                    i++;
+                });
+                $.ajax({
+                    url: '{{ url('stripe_rec_order_csv_edit_sort_no_move') }}', // TODO change url
+                    type: 'POST',
+                    data: newSortNos
+                }).always(function() {
+                    $(".modal-backdrop").remove();  //TODO modal backdrop
+                });
+            };
+            // 最初と最後の↑↓を再描画
+            var redrawDisableAllows = function() {
+                var items = $('.sortable-item');
+                items.find('a.action-up').removeClass('disabled');
+                items.find('a.action-down').removeClass('disabled');
+                items.first().find('a.action-up').addClass('disabled');
+                items.last().find('a.action-down').addClass('disabled');
+            };
+            // オーバレイ後, 表示順の更新を行う
+            var moveSortNo = function() {
+                $('body').append($('<div class="modal-backdrop show"></div>'));
+                updateSortNo();
+                redrawDisableAllows();
+            };
+            // Drag and Drop
+            $('.sortable-container').sortable({
+                items: '> .sortable-item',
+                cursor: 'move',
+                update: function(e, ui) {
+                    moveSortNo();
+                }
+            });
+            // Up
+            $('.sortable-item').on('click', 'a.action-up', function(e) {
+                e.preventDefault();
+                var current = $(this).parents("li");
+                if (current.prev().hasClass('sortable-item')) {
+                    current.prev().before(current);
+                    moveSortNo();
+                }
+            });
+            // Down
+            $('.sortable-item').on('click', 'a.action-down', function(e) {
+                e.preventDefault();
+                var current = $(this).parents("li");
+                if (current.next().hasClass('sortable-item')) {
+                    current.next().after(current);
+                    moveSortNo();
+                }
+            });
+
+            var groupItem = $('.list-group-item');
+            groupItem.on('click', 'a.action-edit', function(e) {
+                e.preventDefault();
+                var current = $(this).parents('li');
+                current.find('.mode-view').addClass('d-none');
+                current.find('.mode-edit').removeClass('d-none');
+            });
+
+            groupItem.on('click', 'button.action-edit-cancel', function(e) {
+                e.preventDefault();
+                var current = $(this).parents('li');
+                current.find('[data-origin-value]').each(function(e) {
+                    $(this).val($(this).attr('data-origin-value'));
+                });
+                current.find('.mode-view').removeClass('d-none');
+                current.find('.mode-edit').addClass('d-none');
+            });
+
+            groupItem.find('.is-invalid').each(function(e) {
+                e.preventDefault();
+                var current = $(this).parents("li");
+                current.find('.mode-view').addClass('d-none');
+                current.find('.mode-edit').removeClass('d-none');
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block stylesheet %}
+    {#TODO: Move to css file#}
+    <style>
+        .c-directoryTree ul > li > ul li:not(:last-of-type) > label:before,
+        .c-directoryTree ul > li > ul li:last-of-type > label:before {
+            margin-right: 1.6em;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div class="c-contentsArea__cols">
+        <div class="c-contentsArea__primaryCol">
+            <div id="ex-primaryCol" class="c-primaryCol">
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-body p-0">
+                        <div class="card rounded border-0">
+                            <ul class="list-group list-group-flush sortable-container">
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-auto"><strong>&nbsp;</strong></div>
+                                        <div class="col-auto"><strong>{{ 'admin.common.id'|trans }}</strong></div>
+                                        <div class="col-2"><strong>名前</strong></div>
+                                    </div>
+                                </li>
+                                {% if Csvs|length > 0 %}
+                                    {% for Csv in Csvs %}
+                                        <li id="ex-csv-{{ Csv.id }}" class="list-group-item sortable-item" data-id="{{ Csv.id }}" data-sort-no="{{ Csv.SortNo }}">
+                                            <div class="row justify-content-around mode-view">
+                                                <div class="col-auto d-flex align-items-center"><i class="fa fa-bars text-ec-gray"></i></div>
+                                                <div class="col-auto d-flex align-items-center">{{ Csv.id }}</div>
+                                                <div class="col d-flex align-items-center">
+                                                    {{ Csv.label }}
+                                                </div>
+                                                <div class="col-auto text-right">
+                                                    <a class="btn btn-ec-actionIcon action-up mr-2 {% if loop.first %} disabled {% endif %}" href=""
+                                                        data-tooltip="true" data-placement="top"
+                                                        title="{{ 'admin.common.up'|trans }}">
+                                                        <i class="fa fa-arrow-up fa-lg text-secondary"></i>
+                                                    </a>
+                                                    <a class="btn btn-ec-actionIcon action-down mr-2 {% if loop.last %} disabled {% endif %}" href=""
+                                                        data-tooltip="true" data-placement="top"
+                                                        title="{{ 'admin.common.down'|trans }}">
+                                                        <i class="fa fa-arrow-down fa-lg text-secondary"></i>
+                                                    </a>
+                                                    <a class="btn btn-ec-actionIcon mr-2 action-edit"
+                                                        data-tooltip="true" data-placement="top"
+                                                        title="{{ 'admin.common.edit'|trans }}">
+                                                        <i class="fa fa-pencil fa-lg text-secondary"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <form class="form-row d-none mode-edit" method="POST" action="{{ url('stripe_rec_order_csv_item_edit', {id : Csv.id}) }}" enctype="multipart/form-data">
+                                                {{ form_widget(forms[Csv.id]._token) }}
+                                                <div class="col-auto align-items-center">
+                                                    {{ form_widget(forms[Csv.id].label, {'attr': {'data-origin-value': forms[Csv.id].label.vars.value}}) }}
+                                                    {{ form_errors(forms[Csv.id].label) }}
+                                                </div>
+                                                <div class="col-auto align-items-center">
+                                                    <button class="btn btn-ec-conversion" type="submit">{{ 'admin.common.decision'|trans }}</button>
+                                                </div>
+                                                <div class="col-auto align-items-center">
+                                                    <button class="btn btn-ec-sub action-edit-cancel" type="button">{{ 'admin.common.cancel'|trans }}</button>
+                                                </div>
+                                            </form>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="c-contentsArea__secondaryCol">
+
+        </div>
+    </div>
+{% endblock %}

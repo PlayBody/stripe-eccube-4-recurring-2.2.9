@@ -1,0 +1,48 @@
+imports:
+    - resource: config.yaml
+services:
+    plg_stripe_recurring.service.util:
+        public: true
+        class: Plugin\StripeRec\Service\UtilService
+        arguments:
+            - '@service_container'
+    plg_stripe_rec.service.admin.plugin.config:
+        public: true
+        class: Plugin\StripeRec\Service\ConfigService
+        arguments:
+            - '@service_container'
+            - '@Eccube\Common\EccubeConfig'
+    plg_stripe_rec.service.stripe_service:
+        public: true
+        class: Plugin\StripeRec\Service\StripeService
+        arguments:
+            - '@service_container'
+    plg_stripe_rec.service.email.service:
+        public: true
+        class: Plugin\StripeRec\Service\MailExService
+        arguments:
+            - '@service_container'
+            - '@swiftmailer.mailer.default'
+            - '@Eccube\Repository\MailTemplateRepository'
+            - '@Eccube\Repository\MailHistoryRepository'
+            - '@Eccube\Repository\BaseInfoRepository'
+            - '@Symfony\Component\EventDispatcher\EventDispatcherInterface'
+            - '@twig'
+            - '@Eccube\Common\EccubeConfig'
+    plg_stripe_rec.service.recurring_service:
+        public: true
+        class: Plugin\StripeRec\Service\RecurringService
+        arguments:
+            - '@service_container'
+    plg_stripe_rec.service.pointbundle_service:
+        public: true
+        class: Plugin\StripeRec\Service\PointBundleService
+        arguments:
+            - '@service_container'
+    plg_stripe_rec.service.coupon_service:
+        public: true
+        class: Plugin\StripeRec\Service\CouponService
+        arguments:
+            - '@service_container'
+            - '@Eccube\Service\MailService'
+    

@@ -1,0 +1,82 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+
+http://www.ec-cube.co.jp/
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+#}
+{% autoescape false %}
+{{ order.name01 }} {{ order.name02 }} 様
+
+この期間の定期支払いの成功
+
+************************************************
+　ご請求金額
+************************************************
+
+ご注文日時：{{ order.OrderDate|date_sec }}
+ご注文番号：{{ order.order_no }}
+お支払い合計：{{ (rec_order.Quantity * rec_order.UnitAmount)|price}}
+お支払い方法：{{ 'stripe_recurring.payment_method.name'|trans }}
+
+************************************************
+　ご注文商品明細
+************************************************
+
+{% for OrderItem in order.MergedProductOrderItems %}
+商品コード：{{ OrderItem.product_code }}
+商品名：{{ OrderItem.product_name }}  {{ OrderItem.classcategory_name1 }}  {{ OrderItem.classcategory_name2 }} {{ is_reduced_tax_rate(OrderItem) ? '※' }}
+単価：{{ OrderItem.price_inctax|price }}
+数量：{{ OrderItem.quantity|number_format }}
+
+{% endfor %}
+
+************************************************
+　ご注文者情報
+************************************************
+お名前：{{ order.FullName }} 様
+お名前(カナ)：{{ order.FullKana }} 様
+
+郵便番号：〒{{ order.postal_code }}
+住所：{{ order.Pref.name }}{{ order.addr01 }}{{ order.addr02 }}
+電話番号：{{ order.phone_number }}
+メールアドレス：{{ order.email }}
+
+************************************************
+　配送情報
+************************************************
+
+{%  for Shipping in order.Shippings %}
+◎お届け先{% if order.multiple %}{{ loop.index }}{% endif %}
+
+お名前：{{ Shipping.name01 }} {{ Shipping.name02 }} 様
+お名前(カナ)：{{ Shipping.kana01 }} {{ Shipping.kana02 }} 様
+{% if Shipping.company_name %}
+会社名：{{ Shipping.company_name }}
+{% endif %}
+郵便番号：〒{{ Shipping.postal_code }}
+住所：{{ Shipping.Pref.name }}{{ Shipping.addr01 }}{{ Shipping.addr02 }}
+電話番号：{{ Shipping.phone_number }}
+
+配送方法：{{ Shipping.shipping_delivery_name }}
+お届け日：{{ Shipping.shipping_delivery_date is empty ? '指定なし' : Shipping.shipping_delivery_date|date_day }}
+お届け時間：{{ Shipping.shipping_delivery_time|default('指定なし') }}
+
+{%  for OrderItem in Shipping.productOrderItems %}
+商品コード：{{ OrderItem.product_code }}
+商品名：{{ OrderItem.product_name }}  {{ OrderItem.classcategory_name1 }}  {{ OrderItem.classcategory_name2 }}
+数量：{{ OrderItem.quantity|number_format }}
+
+{% endfor %}
+{% endfor %}
+
+
+============================================
+
+このメッセージはお客様へのお知らせ専用ですので、
+このメッセージへの返信としてご質問をお送りいただいても回答できません。
+ご了承ください。
+{% endautoescape %}

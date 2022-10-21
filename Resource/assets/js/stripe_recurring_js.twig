@@ -1,0 +1,33 @@
+<script>
+    
+    $(document).ready(function () {
+        var formID = 'shopping-form';
+       
+        // Handle form submission.
+        $('#' + formID).submit(function (e) {
+            e.preventDefault();
+
+            // purchase point validation (1005)
+            let purchase_point = $("input[name='purchase_point']:checked").val();
+            if(!purchase_point){
+                return false;
+            }
+            if(purchase_point === "after_days"){
+                let after_days = $('#purchase_point_container #after_days input').val();                
+                if(after_days < 0){
+                    $("#purchase_point_container #after_days").addClass('error');
+                    $("#purchase_point_container #after_days").append("<p class='error'>After days must be greater than 0</p>");
+                    loadingOverlay('hide');
+                    $('#order-button').removeAttr('disabled');
+                    return false;
+                }else{
+                    $("#purchase_point_container #after_days").removeClass('error');
+                    $("#purchase_point_container #after_days p.error").remove();                    
+                }
+            }
+            //======================
+            var form = document.getElementById(formID);
+            form.submit();
+        });
+    });
+</script>

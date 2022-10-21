@@ -1,0 +1,45 @@
+この期間の定期支払いの成功
+{% set order = rec_order.Order %}
+
+{{ order.name01 }} {{ order.name02 }} 様
+
+注文いただきありがとうございます。 間違いがないか、以下のお支払いの詳細をご確認ください。
+
+************************************************
+　ご請求金額
+************************************************
+
+ご注文日時：{{ order.OrderDate|date_sec }}
+ご注文番号：{{ rec_order.InvoiceData.number }}
+お支払い合計：{{ rec_order.InvoiceData.total|price}}
+お支払い方法：{{ 'stripe_recurring.payment_method.name'|trans }}
+請求書    ：
+
+{{ rec_order.CurrentPeriodStart|date_day }} ~ {{ rec_order.CurrentPeriodEnd|date_day }}
+
+************************************************
+　ご注文商品明細
+************************************************
+
+
+{% for invoice_item in rec_order.InvoiceItems %}
+{% set rec_order_item = util_service.getItemByOrderAndPriceid(rec_order, invoice_item.price.id) %}
+{% if rec_order_item %}
+商品名： {{ rec_order_item.Product.Name }}  {% if rec_order_item.ProductClass.ClassCategory1 %} {{ rec_order_item.ProductClass.ClassCategory1.Name }} {% endif %}{% if rec_order_item.ProductClass.ClassCategory2 %}{{ rec_order_item.ProductClass.ClassCategory2.Name }}{% endif %}
+{% endif %}
+
+{% if invoice_item.description %}
+    {{ invoice_item.description }}
+{% endif %}
+
+単価： {{ invoice_item.amount|price }}
+数量： {{ invoice_item.quantity }}
+----------------------------------
+{% endfor %}
+
+このメッセージはお客様へのお知らせ専用ですので、
+このメッセージへの返信としてご質問をお送りいただいても回答できません。
+ご了承ください。
+
+この商品の定期購入を取り消すためには下記のURLをクリックしてください。                      
+{{ url("mypage_stripe_cancel_confirm", { "id" : rec_order.Id }) }}

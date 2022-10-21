@@ -1,0 +1,15 @@
+{
+    "name": "ec-cube/striperec",
+    "version": "2.2.9",
+    "description": "Stripe 定期支払いプラグイン",
+    "type": "eccube-plugin",
+    "require": {      
+      "stripe/stripe-php": "~7.27.3",
+      "ec-cube/plugin-installer": "~0.0.6 || ^2.0",
+      "ec-cube\/StripePaymentGateway": "~1.2.7"
+    },
+    "extra": {
+      "code": "StripeRec"
+    }
+  }
+  

@@ -1,0 +1,147 @@
+{#
+/*
+*
+* Copyright (C) 2020 Subspire. All Rights Reserved.
+
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
+*/
+#}
+{% extends  'default_frame.twig' %}
+
+{% set mypageno = 'mypage_stripe_schedule' %}
+
+{% set body_class = 'mypage' %}
+
+{% block main %}
+    <div class="ec-layoutRole__main">
+        <div class="ec-mypageRole">
+            <div class="ec-pageHeader">
+                <h1>{{ 'front.mypage.title'|trans }}/{{ 'stripe_recurring.mypage.schedule.breadcrump'|trans }}</h1>
+            </div>
+            {{ include('Mypage/navi.twig') }}
+        </div>
+        <div class="ec-mypageRole">
+            {% if pagination.totalItemCount > 0 %}
+                <p class="ec-para-normal">{{ 'front.mypage.history_count'|trans({'%count%':pagination.totalItemCount}) }}</p>
+                {% for rec_order in pagination %}           
+                {% set state = pb_service.getScheduleState(rec_order) %}     
+                {% set bundles = pb_service.getBundleProducts(rec_order) %}
+                    <div class="ec-historyRole">
+                        <div class="ec-historyRole__contents">
+
+                            <div class="ec-historyRole__header">
+                                <div class="ec-historyListHeader">
+                                    <p class="ec-historyListHeader__date">{{ rec_order.CreateDate|date_sec }}</p>
+                                    <dl class="ec-definitions">
+                                        <dt>{{ 'stripe_recurring.mypage.schedule.label_id'|trans }}</dt>
+                                        <dd>{{ rec_order.ScheduleId }}</dd>
+                                    </dl>                                    
+                                    <dl class="ec-definitions">
+                                        <dt>{{ 'stripe_recurring.mypage.schedule.status'|trans }}</dt>
+                                        <dd>
+                                            <span class="badge badge-ec-blue" style="border: 2px solid {{ state[1] }}; background: #fff; color: {{ state[1] }}">
+                                            {{ state[0] }}
+                                            </span>
+                                        </dd>
+                                    </dl>                                    
+                                    <dl class="ec-definitions">
+                                        <dt>{{ 'stripe_recurring.schedule.start_date'|trans }}
+                                        <dd>
+                                            <span style="margin-left:5px;">
+                                            {{ rec_order.StartDate|date_sec }}
+                                            </span>
+                                        </dd>
+                                    </dl>                                    
+                                    {% if (state[2] == "not_started") %}   
+                                    <p class="ec-historyListHeader__action">
+                                        <a class="ec-inlineBtn" 
+                                        href="{{ url('mypage_stripe_cancel_confirm', {'id': rec_order.Id}) }}">{{ 'stripe_recurring.mypage.recurring.cancel'|trans }}</a>
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="ec-historyRole__detail">
+                                {% for OrderItem in rec_order.OrderItems %}
+                                {# {% set OrderItem = rec_order.OrderItem %} #}
+                                    <div class="ec-imageGrid">
+                                        <div class="ec-imageGrid__img">
+                                            {% if OrderItem.Product is null %}
+                                                <img src="{{ asset(''|no_image_product, 'save_image') }}"/>
+                                            {% else %}
+                                                <img src="{{ asset(OrderItem.Product.MainListImage|no_image_product, 'save_image') }}">
+                                            {% endif %}
+                                        </div>
+                                        <div class="ec-imageGrid__content">
+                                            <p class="ec-historyRole__detailTitle">{{ OrderItem.Product.Name }}</p>
+                                            {% if OrderItem.ProductClass.ClassCategory1 and OrderItem.ProductClass.ClassCategory1.Name is not empty %}
+                                                {{ OrderItem.ProductClass.ClassCategory1.Name }}
+                                            {% endif %}
+                                            {% if OrderItem.ProductClass.ClassCategory2 and OrderItem.ProductClass.ClassCategory2.Name is not empty %}
+                                                / {{ OrderItem.ProductClass.ClassCategory2.Name }}
+                                            {% endif %}
+                                            <p class="ec-historyRole__detailPrice">{{ OrderItem.ProductClass.Price02IncTax|price }}
+                                                × {{ OrderItem.quantity }}</p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                {% if bundles %}
+                                    <style>
+                                        .bundle-caption{
+                                            font-weight: bold;
+                                            border-top: 2px dashed #ccc;
+                                            margin-top: 5px;
+                                            padding-top: 5px;
+                                        }
+                                        .bundle-product-wrap img{
+                                            width: 80% !important;                                     
+                                        }
+                                        .bundle-product-wrap .ec-historyRole__detailTitle{
+                                            font-size: 1.4rem !important;
+                                        }
+                                        .bundle-product-wrap .ec-historyRole__detailPrice{
+                                            font-size: 1.4rem !important;
+                                        }
+                                    </style>
+                                    <p class="bundle-caption">{{ 'stripe_recurring.mypage.schedule.bundle_product'|trans }}</p>
+                                    {% set order_items = bundles['order_items'] %}
+                                    {% for order_item in order_items %}
+                                        <div class="ec-imageGrid bundle-product-wrap">
+                                            <div class="ec-imageGrid__img">
+                                                {% if order_item['product_class'].Product is null %}
+                                                    <img src="{{ asset(''|no_image_product, 'save_image') }}"/>
+                                                {% else %}
+                                                    <img src="{{ asset(order_item['product_class'].Product.MainListImage|no_image_product, 'save_image') }}">
+                                                {% endif %}
+                                            </div>
+                                            <div class="ec-imageGrid__content">
+                                                <p class="ec-historyRole__detailTitle">{{ order_item['product_class'].Product.Name }}</p>
+                                                {% if order_item['product_class'].ClassCategory1 and order_item['product_class'].ClassCategory1.Name is not empty %}
+                                                    {{ order_item['product_class'].ClassCategory1.Name }}
+                                                {% endif %}
+                                                {% if order_item['product_class'].ClassCategory2 and order_item['product_class'].ClassCategory2.Name is not empty %}
+                                                    / {{ order_item['product_class'].ClassCategory2.Name }}
+                                                {% endif %}
+                                                <p class="ec-historyRole__detailPrice">{{ order_item['product_class'].Price02IncTax|price }}
+                                                    × {{ order_item['quantity'] }}</p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="ec-pagerRole">
+                    {% include "pager.twig" with {'pages': pagination.paginationData} %}
+                </div>
+            {% else %}
+                <p class="ec-para-normal">{{ 'front.mypage.history_not_found'|trans }}</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+{{ include('StripeRec/Resource/template/default/Mypage/navi.twig') }}
+{% endblock %}
